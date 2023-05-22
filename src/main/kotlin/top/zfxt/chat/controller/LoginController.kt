@@ -17,12 +17,18 @@ class LoginController {
     var UsersMap = WebSocketServer.UsersMap
     @GetMapping("/login")
     public fun login(username:String): String? {
-        //生成用户信息
-        var userId = UUID.randomUUID().toString().replace("-","").substring(0,10)
-        UsersMap.put(userId,User(userId,username,null,"offline"))
+        //第一次注册用户
+        if(username!="")
+        {
+            //生成用户信息
+            var userId = UUID.randomUUID().toString().replace("-","").substring(0,10)
+            UsersMap.put(username,User(userId,username,null,"offline"))
 
-        println(UsersMap)
-        return JSONUtil.toJsonStr(UsersMap)
+            println(UsersMap)
+            return JSONUtil.toJsonStr(UsersMap)
+        }
+            return null
+
 
     }
 }

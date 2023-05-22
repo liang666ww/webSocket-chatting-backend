@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Controller
 import org.springframework.stereotype.Service
 import top.zfxt.chat.pojo.User
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -20,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap
 @ServerEndpoint("/chat/{username}")
 class WebSocketServer {
     companion object{
-          val UsersMap:MutableMap<String, User> = mutableMapOf()
+          val UsersMap:MutableMap<String, User?> = mutableMapOf()
 
           val log = LoggerFactory.getLogger(WebSocketServer.javaClass)
 
@@ -36,10 +37,23 @@ class WebSocketServer {
     @OnOpen
     public fun onOpen(session:Session,@PathParam("username") username:String){
         //让用户上线
-       UsersMap.get(username)?.status= "online"
-        sessionMap.put(username,session)
-        log.info("有新用户加入，username={}，当前在线人数为：{}",username, sessionMap.size)
-        sendAllMessage(JSONUtil.toJsonStr(UsersMap))
+        var newUser: User? = UsersMap.get(username)
+        newUser?.status = "online"
+        if(newUser==null)
+        {
+            //生成用户信息
+            var userId = UUID.randomUUID().toString().replace("-","").substring(0,10)
+            newUser = User(userId,username,null,"online")
+
+        }
+
+            UsersMap.put(username,newUser)
+            sessionMap.put(username,session)
+            log.info("有新用户加入，username={}，当前在线人数为：{}",username, sessionMap.size)
+
+
+        var systemMessage = JSONObject().set("isSystem",true).set("users", UsersMap.values)
+        sendAllMessage(JSONUtil.toJsonStr(systemMessage))
 //        var result: JSONObject = JSONObject()
 //        var array: JSONArray = JSONArray()
 //        result.set("users",array)
@@ -53,7 +67,8 @@ class WebSocketServer {
      */
     @OnClose
     public fun onClose(session: Session,@PathParam("username") username: String){
-        sessionMap.minus(username)
+        sessionMap.remove(username)
+        UsersMap.remove(username)
         log.info("有一连接关闭，移除username={}的用户session，当前在线人数为：{}",username, sessionMap.size)
     }
     /**
@@ -65,13 +80,13 @@ class WebSocketServer {
     public fun onMessage(message: String,@PathParam("username") username: String){
         log.info("服务器收到用户username={}的消息:{}",username,message)
         var obj = JSONUtil.parseObj(message)
+        var fromname = obj.getStr("from")
         var toUsername = obj.getStr("to")
-        var text = obj.getStr("text")
         var toSession = sessionMap.get(toUsername)
         if(toSession != null){
-            var js = JSONObject().set("from",username).set("text",text).toString()
-            sendMassage(js,toSession)
-            log.info("发送给用户username={}，消息：{}",toUsername,js)
+            var message = JSONObject().set("isSystem",false).set("message",obj).toString()
+            sendMassage(message,toSession)
+            log.info("用户{}发送给用户username={}，消息：{}",fromname,toUsername,message)
         }else{
             log.info("发送失败，位置啊到用户username={}的session",toUsername)
         }
