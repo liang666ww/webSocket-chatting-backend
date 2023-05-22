@@ -1,4 +1,4 @@
-package top.zfxt.chat.controller
+package top.zfxt.chat.service
 
 import cn.hutool.json.JSONArray
 import cn.hutool.json.JSONObject
@@ -7,25 +7,27 @@ import jakarta.websocket.*
 import jakarta.websocket.server.PathParam
 import jakarta.websocket.server.ServerEndpoint
 import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Component
 import org.springframework.stereotype.Controller
+import org.springframework.stereotype.Service
+import top.zfxt.chat.pojo.User
 import java.util.concurrent.ConcurrentHashMap
 
 /**
  *  @author:zfxt
  *  @version:1.0
  */
-@Controller
+@Service
 @ServerEndpoint("/chat/{username}")
 class WebSocketServer {
     companion object{
+          val UsersMap:MutableMap<String, User> = mutableMapOf()
 
-        private  val log = LoggerFactory.getLogger(WebSocketServer.javaClass)
+          val log = LoggerFactory.getLogger(WebSocketServer.javaClass)
 
         /**
          * 记录当前在线人数
          */
-        private val sessionMap:MutableMap<String,Session> = ConcurrentHashMap();
+         val sessionMap:MutableMap<String,Session> = ConcurrentHashMap();
     }
 
     /**
@@ -33,15 +35,18 @@ class WebSocketServer {
      */
     @OnOpen
     public fun onOpen(session:Session,@PathParam("username") username:String){
+        //让用户上线
+       UsersMap.get(username)?.status= "online"
         sessionMap.put(username,session)
         log.info("有新用户加入，username={}，当前在线人数为：{}",username, sessionMap.size)
-        var result: JSONObject = JSONObject()
-        var array: JSONArray = JSONArray()
-        result.set("users",array)
-        for (key in sessionMap.keys){
-            array.add(JSONObject().set("username",key))
-        }
-        sendAllMessage(JSONUtil.toJsonStr(result))
+        sendAllMessage(JSONUtil.toJsonStr(UsersMap))
+//        var result: JSONObject = JSONObject()
+//        var array: JSONArray = JSONArray()
+//        result.set("users",array)
+//        for (key in sessionMap.keys){
+//            array.add(JSONObject().set("username",key))
+//        }
+//        sendAllMessage(JSONUtil.toJsonStr(result))
     }
     /**
      * 连接关闭调用的方法

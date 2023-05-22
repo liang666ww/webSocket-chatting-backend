@@ -4,6 +4,7 @@ import cn.hutool.json.JSONUtil
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 import top.zfxt.chat.pojo.User
+import top.zfxt.chat.service.WebSocketServer
 import java.util.UUID
 
 /**
@@ -12,14 +13,16 @@ import java.util.UUID
  */
 @RestController
 class LoginController {
-    var UserMap:MutableMap<String,User> = mutableMapOf()
+
+    var UsersMap = WebSocketServer.UsersMap
     @GetMapping("/login")
     public fun login(username:String): String? {
         //生成用户信息
         var userId = UUID.randomUUID().toString().replace("-","").substring(0,10)
-        UserMap.put(userId,User(userId,username))
+        UsersMap.put(userId,User(userId,username,null,"offline"))
 
-        println(UserMap)
-        return JSONUtil.toJsonStr(UserMap)
+        println(UsersMap)
+        return JSONUtil.toJsonStr(UsersMap)
+
     }
 }
