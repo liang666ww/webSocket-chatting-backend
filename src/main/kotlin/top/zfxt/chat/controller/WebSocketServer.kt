@@ -1,4 +1,4 @@
-package top.zfxt.chat.config
+package top.zfxt.chat.controller
 
 import cn.hutool.json.JSONArray
 import cn.hutool.json.JSONObject
@@ -8,13 +8,14 @@ import jakarta.websocket.server.PathParam
 import jakarta.websocket.server.ServerEndpoint
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import org.springframework.stereotype.Controller
 import java.util.concurrent.ConcurrentHashMap
 
 /**
  *  @author:zfxt
  *  @version:1.0
  */
-@Component
+@Controller
 @ServerEndpoint("/chat/{username}")
 class WebSocketServer {
     companion object{
