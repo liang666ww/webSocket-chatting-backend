@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Controller
 import org.springframework.stereotype.Service
 import top.zfxt.chat.pojo.User
+import java.nio.ByteBuffer
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
@@ -107,6 +108,12 @@ class WebSocketServer {
         }catch (e:Exception){
             log.error("服务器发送消息给客户端失败",e)
         }
+    }
+    /**
+     * 服务器发送图片给客户端
+     */
+    private fun sendImage(image:ByteBuffer,toSession: Session){
+        toSession.basicRemote.sendBinary(image)
     }
     /**
      * 服务器发送消息给所有客户端
