@@ -71,6 +71,8 @@ class WebSocketServer {
         sessionMap.remove(username)
         UsersMap.remove(username)
         log.info("有一连接关闭，移除username={}的用户session，当前在线人数为：{}",username, sessionMap.size)
+        var systemMessage = JSONObject().set("isSystem",true).set("users", UsersMap.values)
+        sendAllMessage(JSONUtil.toJsonStr(systemMessage))
     }
     /**
      * 收到客户端消息后调用的方法
