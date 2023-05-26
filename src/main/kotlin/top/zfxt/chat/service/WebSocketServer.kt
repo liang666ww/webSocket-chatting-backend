@@ -90,6 +90,7 @@ class WebSocketServer {
             log.info("用户{}发送给用户username={}，消息：{}",fromname,toUsername,message)
         }else{
             log.info("发送失败，未找到用户username={}的session",toUsername)
+            UsersMap.remove(toUsername)
         }
     }
     @OnError
