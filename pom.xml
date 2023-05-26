@@ -18,6 +18,7 @@
         <kotlin.version>1.8.21</kotlin.version>
     </properties>
     <dependencies>
+
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>

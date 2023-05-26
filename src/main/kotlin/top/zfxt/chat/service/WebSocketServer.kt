@@ -77,7 +77,7 @@ class WebSocketServer {
      *
      * @param message 客户端发送过来的消息
      */
-    @OnMessage
+    @OnMessage(maxMessageSize = 1024*1024*10)
     public fun onMessage(message: String,@PathParam("username") username: String){
         log.info("服务器收到用户username={}的消息:{}",username,message)
         var obj = JSONUtil.parseObj(message)
@@ -89,7 +89,7 @@ class WebSocketServer {
             sendMassage(message,toSession)
             log.info("用户{}发送给用户username={}，消息：{}",fromname,toUsername,message)
         }else{
-            log.info("发送失败，位置啊到用户username={}的session",toUsername)
+            log.info("发送失败，未找到用户username={}的session",toUsername)
         }
     }
     @OnError
