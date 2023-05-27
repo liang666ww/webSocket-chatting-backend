@@ -25,11 +25,8 @@ class LoginController {
             UsersMap.put(username,User(userId,username,null,"offline"))
 
             println(UsersMap)
-//            return JSONUtil.toJsonStr(UsersMap)
             return "ok"
         }
             return "repeat"
-
-
     }
 }
